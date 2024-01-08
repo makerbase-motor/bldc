@@ -295,4 +295,3 @@
 float hw84_200_get_temp(void);
 bool hw_sample_shutdown_button(void);
 #endif /* HW_MKSESC_84_200_HP_H_ */
-#endif /* HW_MKSESC_84_200_HP_H_ */
