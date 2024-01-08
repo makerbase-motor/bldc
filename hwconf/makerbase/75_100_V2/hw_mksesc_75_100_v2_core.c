@@ -109,7 +109,9 @@ void hw_init_gpio(void) {
 	palSetPadMode(GPIOC, 2, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 3, PAL_MODE_INPUT_ANALOG);
 	palSetPadMode(GPIOC, 4, PAL_MODE_INPUT_ANALOG);
+	#if defined (HW75_100_V2_OLD)
 	palSetPadMode(GPIOC, 5, PAL_MODE_INPUT_ANALOG);
+	#endif	
 }
 
 void hw_setup_adc_channels(void) {
