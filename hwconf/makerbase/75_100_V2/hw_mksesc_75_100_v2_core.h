@@ -135,13 +135,13 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG				3.40
+#define V_REG				3.340
 #endif
 #ifndef VIN_R1
-#define VIN_R1				560000.0 
+#define VIN_R1				56000.0 
 #endif
 #ifndef VIN_R2
-#define VIN_R2				21500.0 
+#define VIN_R2				2200.0 
 #endif
 #ifndef CURRENT_AMP_GAIN
 #define CURRENT_AMP_GAIN		20.0 
@@ -274,7 +274,6 @@
 #ifndef MCCONF_L_MAX_VOLTAGE
 #define MCCONF_L_MAX_VOLTAGE			90.0	// Maximum input voltage
 #endif
-#endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
 #endif
@@ -289,8 +288,9 @@
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
 #define MCCONF_L_IN_CURRENT_MAX			100.0	// Input current limit in Amperes (Upper)
+#endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-100.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-20.0	// Input current limit in Amperes (Lower)
 #endif
 
 
