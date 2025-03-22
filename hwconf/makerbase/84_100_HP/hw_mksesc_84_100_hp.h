@@ -47,18 +47,18 @@
 // Shutdown pin
 #define HW_SHUTDOWN_GPIO		GPIOC
 #define HW_SHUTDOWN_PIN			5
-#define HW_SHUTDOWN_HOLD_ON()	palSetPad(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN)
-#define HW_SHUTDOWN_HOLD_OFF()	palClearPad(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN)
-#define HW_SAMPLE_SHUTDOWN()	hw_sample_shutdown_button()
+#define HW_SHUTDOWN_HOLD_ON()		palSetPad(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN)
+#define HW_SHUTDOWN_HOLD_OFF()		palClearPad(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN)
+#define HW_SAMPLE_SHUTDOWN()		hw_sample_shutdown_button()
 
 // Hold shutdown pin early to wake up on short pulses
 #define HW_EARLY_INIT()			palSetPadMode(HW_SHUTDOWN_GPIO, HW_SHUTDOWN_PIN, PAL_MODE_OUTPUT_PUSHPULL); \
 					HW_SHUTDOWN_HOLD_ON();      
 
-//#define AUX_GPIO				GPIOC
-//#define AUX_PIN				12
-//#define AUX_ON()				palSetPad(AUX_GPIO, AUX_PIN)
-//#define AUX_OFF()				palClearPad(AUX_GPIO, AUX_PIN)
+//#define AUX_GPIO			GPIOC
+//#define AUX_PIN			12
+//#define AUX_ON()			palSetPad(AUX_GPIO, AUX_PIN)
+//#define AUX_OFF()			palClearPad(AUX_GPIO, AUX_PIN)
 
 #define CURRENT_FILTER_ON()		palSetPad(GPIOD, 2)
 #define CURRENT_FILTER_OFF()		palClearPad(GPIOD, 2)
@@ -111,15 +111,15 @@
 
 // Component parameters (can be overridden)
 #ifndef V_REG
-#define V_REG				3.40
+#define V_REG				3.30
 #endif
 
 //The voltage dividing acquisition circuit on the Makerbase VESC motherboard is 560K and 21.5K resistors.
 #ifndef VIN_R1
-#define VIN_R1				560000.0 
+#define VIN_R1				56000.0 
 #endif
 #ifndef VIN_R2
-#define VIN_R2				21500.0 
+#define VIN_R2				2200.0 
 #endif
 
 #ifndef CURRENT_AMP_GAIN
@@ -244,7 +244,7 @@
 #define READ_HALL3()			palReadPad(HW_HALL_ENC_GPIO3, HW_HALL_ENC_PIN3)
 
 // Override dead time. See the stm32f4 reference manual for calculating this value.
-#define HW_DEAD_TIME_NSEC		660.0
+#define HW_DEAD_TIME_NSEC			660.0
 
 // Default setting overrides
 #ifndef MCCONF_L_MIN_VOLTAGE
@@ -252,7 +252,6 @@
 #endif
 #ifndef MCCONF_L_MAX_VOLTAGE
 #define MCCONF_L_MAX_VOLTAGE			90.0	// Maximum input voltage
-#endif
 #endif
 #ifndef MCCONF_DEFAULT_MOTOR_TYPE
 #define MCCONF_DEFAULT_MOTOR_TYPE		MOTOR_TYPE_FOC
@@ -268,8 +267,9 @@
 #endif
 #ifndef MCCONF_L_IN_CURRENT_MAX
 #define MCCONF_L_IN_CURRENT_MAX			100.0	// Input current limit in Amperes (Upper)
+#endif
 #ifndef MCCONF_L_IN_CURRENT_MIN
-#define MCCONF_L_IN_CURRENT_MIN			-100.0	// Input current limit in Amperes (Lower)
+#define MCCONF_L_IN_CURRENT_MIN			-20.0	// Input current limit in Amperes (Lower)
 #endif
 
 
