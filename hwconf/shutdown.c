@@ -74,17 +74,21 @@ void shutdown_hold(bool hold) {
 	m_shutdown_hold = hold;
 }
 
-bool do_shutdown(bool resample) {
+void shutdown_save_and_hold(void) {
 #ifdef USE_LISPBM
 	lispif_process_shutdown();
 #endif
 
+	conf_general_store_backup_data();
+	chThdSleepMilliseconds(100);
+
 	while (m_shutdown_hold) {
 		chThdSleepMilliseconds(5);
 	}
+}
 
-	conf_general_store_backup_data();
-	chThdSleepMilliseconds(100);
+bool do_shutdown(bool resample) {
+	shutdown_save_and_hold();
 
 	bool disable_gates = true;
 	if (resample) {
@@ -150,8 +154,20 @@ static THD_FUNCTION(shutdown_thread, arg) {
 			break;
 
 		case SHUTDOWN_MODE_ALWAYS_ON:
-			m_inactivity_time += dt;
 			HW_SHUTDOWN_HOLD_ON();
+			break;
+
+		default:
+			if (clicked) {
+				gates_disabled_here = do_shutdown(false);
+			}
+			break;
+		}
+
+		switch (conf->shutdown_mode) {
+		case SHUTDOWN_MODE_ALWAYS_OFF:
+		case SHUTDOWN_MODE_ALWAYS_ON: {
+			m_inactivity_time += dt;
 			// Without a shutdown switch use inactivity timer to estimate
 			// when device is stopped. Check also distance between store
 			// to prevent excessive flash write cycles.
@@ -163,12 +179,8 @@ static THD_FUNCTION(shutdown_thread, arg) {
 					odometer_old = mc_interface_get_odometer();
 				}
 			}
-			break;
-
+		}
 		default:
-			if (clicked) {
-				gates_disabled_here = do_shutdown(false);
-			}
 			break;
 		}
 

@@ -127,11 +127,26 @@ __attribute__((section(".text2"))) void conf_general_init(void) {
 		if (g_backup.hw_config_init_flag == BACKUP_VAR_INIT_CODE) {
 			memcpy((void*)backup_tmp.hw_config, (uint8_t*)g_backup.hw_config, sizeof(g_backup.hw_config));
 		}
+
+		if (g_backup.enc_corr_init_flag == BACKUP_VAR_INIT_CODE) {
+			memcpy((void*)backup_tmp.enc_corr, (uint8_t*)g_backup.enc_corr, sizeof(g_backup.enc_corr));
+			backup_tmp.enc_corr_en = g_backup.enc_corr_en;
+		}
+
+		if (g_backup.can_init_flag == BACKUP_VAR_INIT_CODE) {
+			backup_tmp.can_baud = g_backup.can_baud;
+			backup_tmp.can_id = g_backup.can_id;
+		} else {
+			backup_tmp.can_baud = APPCONF_CAN_BAUD_RATE;
+			backup_tmp.can_id = HW_DEFAULT_ID;
+		}
 	}
 
 	backup_tmp.odometer_init_flag = BACKUP_VAR_INIT_CODE;
 	backup_tmp.runtime_init_flag = BACKUP_VAR_INIT_CODE;
 	backup_tmp.hw_config_init_flag = BACKUP_VAR_INIT_CODE;
+	backup_tmp.enc_corr_init_flag = BACKUP_VAR_INIT_CODE;
+	backup_tmp.can_init_flag = BACKUP_VAR_INIT_CODE;
 
 	g_backup = backup_tmp;
 	conf_general_store_backup_data();
@@ -149,7 +164,7 @@ __attribute__((section(".text2"))) bool conf_general_store_backup_data(void) {
 	mc_interface_release_motor_override_both();
 
 	if (!mc_interface_wait_for_motor_release_both(3.0)) {
-		return 100;
+		return false;
 	}
 
 	utils_sys_lock_cnt();
@@ -347,6 +362,8 @@ __attribute__((section(".text2"))) void conf_general_read_app_configuration(app_
 	// Set the default configuration
 	if (!is_ok) {
 		confgenerator_set_defaults_appconf(conf);
+		conf->can_baud_rate = g_backup.can_baud;
+		conf->controller_id = g_backup.can_id;
 	}
 }
 
@@ -371,6 +388,13 @@ __attribute__((section(".text2"))) bool conf_general_store_app_configuration(app
 	uint8_t *conf_addr = (uint8_t*)conf;
 	uint16_t var;
 
+	// Some hardware does not have USB and/or UART broken out. On that hardware we always boot with
+	// VESC CAN mode to make it harder to lock yourself out of the device.
+#ifdef HW_BOOT_VESC_CAN
+	CAN_MODE can_mode_before = conf->can_mode;
+	conf->can_mode = CAN_MODE_VESC;
+#endif
+
 	conf->crc = app_calc_crc(conf);
 
 	FLASH_Unlock();
@@ -387,10 +411,18 @@ __attribute__((section(".text2"))) bool conf_general_store_app_configuration(app
 		}
 	}
 
+#ifdef HW_BOOT_VESC_CAN
+	conf->can_mode = can_mode_before;
+#endif
+
 	FLASH_Lock();
 	timeout_configure_IWDT();
 	mc_interface_ignore_input_both(100);
 	utils_sys_unlock_cnt();
+
+	g_backup.can_id = conf->controller_id;
+	g_backup.can_baud = conf->can_baud_rate;
+	conf_general_store_backup_data();
 
 	return is_ok;
 }
